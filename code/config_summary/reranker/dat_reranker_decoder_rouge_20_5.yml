@@ -1,0 +1,132 @@
+# Path
+data_bin: data-bin/gigaword_ref
+# save_dir: checkpoints_tmp
+tensorboard_logdir: false
+
+# log_file: iwslt_liwei.out
+
+# finetune config
+
+finetune_from_model: 'checkpoints_dat/checkpoint.best_rouge-l_44.6700.pt'
+
+# language config
+source_lang: article
+target_lang: summary
+length_beam_K: 20
+length_beam_KV: 5
+
+use_reranker: true
+rerank_method: none
+reranker_temperature: 5
+reranker_score_method: ind
+# reranker_inject_rank: true
+reranker_self_attention: true
+reranker_self_attention_linear: true
+reranker_self_attention_pos_emb: true
+reranker_target_dist: hard_ls
+
+reranker_fix_bert: false
+
+# rerank_pretrain_model: longformer
+
+# rerank_lambda: 10000
+
+# model arch set up
+arch: glat_decomposed_link_base
+task: translation_ctc_rouge_finetune
+# ddp_backend: c10d
+ddp_backend: legacy_ddp
+criterion: nat_dag_final_reranking_loss_v3
+noise: full_mask
+
+# data filtering
+src_upsample_for_task: 1
+
+# optimization
+optimizer: adam
+adam_betas: '"(0.9, 0.98)"'
+label_smoothing: 0
+
+dropout: 0.3
+weight_decay: 0.01
+
+# model hyperparameter
+activation_fn: gelu
+share_all_embeddings: true
+
+decoder_learned_pos: true
+encoder_learned_pos: true
+apply_bert_init: true
+
+
+# Train config
+seed: 0
+
+log_format: simple
+log_interval: 10
+
+max_tokens: 1024
+update_freq: 24
+
+warmup_updates: 4000
+max_update: 80000
+glat_p: '0.5:0.2@300k'
+
+fp16: true
+clip_norm: 1.0
+lr: 0.0001
+warmup_init_lr: '1e-06'
+stop_min_lr: '1e-09'
+lr_scheduler: inverse_sqrt
+
+grouped_shuffling: true
+
+left_pad_source: False
+left_pad_target: False
+
+# valid config
+fixed_validation_seed: 7
+
+max_tokens_valid: 1024
+valid_subset: valid2K,test
+ignore_unused_valid_subsets: true
+
+validate_interval: 100
+save_interval: 100
+validate_interval_updates: 100
+save_interval_updates: 100
+keep_interval_updates: 5
+keep_last_epochs: 1
+keep_best_checkpoints: 5
+
+skip_invalid_size_inputs_valid_test: true
+
+# eval_rouge: true
+# eval_rouge_print_samples: true
+# eval_rouge_remove_bpe: true
+# eval_rouge_detok: moses
+# eval_tokenized_rouge: true
+best_checkpoint_metric: top1_acc
+maximize_best_checkpoint_metric: true
+
+decode_strategy: 'length_control'
+specified_length_ratio: 0.24
+
+
+links_feature: 'feature:position'
+# decode_strategy: 'lookahead'
+max_source_positions: 3096
+max_target_positions: 512
+src_upsample_scale: 1
+glance_strategy: 'number-random'
+max_transition_length: 99999
+# min_sent_length: 5
+length_loss_factor: 0
+
+
+eval_bleu_args: "'{\"iter_decode_max_iter\": 0, \"iter_decode_with_beam\": 1}'"
+
+
+# others
+user_dir: fs_plugins
+
